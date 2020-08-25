@@ -1,0 +1,105 @@
+<html><head><script src="{{url_for('static',filename='js/utils/pop.js')}}"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>首页-index</title>
+<link href="{{url_for('static', filename='layui/css/layui.css')}}" rel="stylesheet" media="all">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+
+    <link href="{{url_for('static', filename='css/zTreeStyle.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static',filename='spinner/css/bootstrap-spinner.min.css')}}">
+
+
+
+ 	<style type="text/css">
+    	a {
+    		cursor:pointer;
+    	}
+    	.sub {
+		    margin-left: 5px;
+		    color: #999;
+		    font-size: 12px;
+		}
+    </style>
+
+<link id="layuicss-layer" rel="stylesheet" href="{{url_for('static',filename='layui/css/modules/layer/default/layer.css')}}" media="all"><link id="layuicss-laydate" rel="stylesheet" href="{{url_for('static',filename='layui/css/modules/laydate/default/laydate.css')}}" media="all"></head>
+
+<body>
+	<div class="main-r-cont">
+        <div class="main-r-t">
+            <div class="title">
+                <div class="tit">{{name}}<span class="sub">{{count}}</span></div>
+            </div>
+        </div>
+        <div class="main-r-b">
+            <div class="divbox padding-top0">
+                <div class="table1">
+                    <table>
+                        <thead>
+
+                            <tr>
+                            	<!-- <th lay-data="{field:'index'}" style="width:60px">序号</th> -->
+                            	<th lay-data="{field:'name'}">数据连接</th>
+                                <th lay-data="{field:'dataSourceType'}" style="width:100px">连接类型</th>
+                                <th lay-data="{field:'createTime'}" style="width:160px">创建时间</th>
+                                <th lay-data="{field:'author'}" style="width:160px">创建人</th>
+                                <th lay-data="{field:'operation'}" style="width:105px">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in data %}
+                            <tr>
+                                <!-- <td></td> -->
+                                <td>
+                                    <a onclick="editDataInfo(this)" value={{d.data_id}}>
+                                        <span title={{d.name}}>{{d.name}}</span>
+                                    </a>
+                                </td>
+                                <td> {{d.data_type}} </td>
+                                <td>{{d.create_time}}</td>
+                                <td>{{d.creator}}</td>
+                                <td>
+                                    <a onclick="editDataInfo(this)" value={{d.data_id}}>编辑</a>
+                                    <a class="data-link-delete" value={{d.data_id}}>删除</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        	</tbody>
+                    </table>
+                    <br><br>
+                </div>
+            </div>
+        </div>
+    </div>
+     <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+    <script src="{{url_for('static',filename='layui/layui.js')}}"></script>
+    <script src="{{url_for('static',filename='spinner/js/jquery.spinner.js')}}"></script>
+    <script src="{{url_for('static',filename='nicescroll/jquery.nicescroll.js')}}"></script>
+    <script src="{{url_for('static',filename='ztree/js/jquery.ztree.core.min.js')}}"></script>
+    <script src="{{url_for('static',filename='ztree/js/jquery.ztree.exedit.js')}}"></script>
+    <script src="{{url_for('static',filename='localForage/localforage.min.js')}}"></script>
+
+
+ 	<script>
+    //var ctx = '/DataI';
+    layui.config({
+        base: '{{url_for('static',filename='js/')}}'
+    }).use(['common', 'data-connection','data-link']);
+
+
+
+   	function editDataInfo(obj){
+		var thisObj = $(obj);
+		var id = thisObj.attr("value");
+        console.log('文件id');
+        console.log(id);
+   		//parent.checkedTree(id);
+   		//var url = "/DataI/DataLink/edit/"+id;
+   	    var url = "/ds/edit/data/"+id;
+        window.location = url;
+   	}
+
+    </script>
+
+
+
+</body></html>

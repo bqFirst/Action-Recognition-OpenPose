@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>模型应用</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewerport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="../static/layui/css/layui.css" rel="stylesheet" media="all">
+  <link href="../static/css/style.css" rel="stylesheet">
+  <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+  <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="layui-layout-body">
+  <div class="layui-layout layui-layout-sjy packup">
+    <div class="layui-header">
+      <a href="javascript:void(0);" class="layui-logo" title="罗摩数据">
+        <div class="logo-img"><img src="../static/images/logo.png"></div>
+        <div class="logo-name"></div>
+      </a>
+      <ul class="layui-nav layui-layout-center">
+        <li class="layui-nav-item"><a href="ds" title="数据源"><i class="icon icon-sjy-manage"></i>数据源</a></li>
+        <li class="layui-nav-item layui-this"><a href="javascript:void(0);" title="模型应用"><i class="icon icon-sjy-database"></i>模型应用</a></li>
+      </ul>
+    </div>
+    <div class="layui-side">
+
+    </div>
+    <div class="layui-body">
+        <div class="main pro-manage">
+
+            <div class="main scroll">
+                <!-- 空白工程 -->
+
+                <!-- 创建工程 -->
+                <div class="pro-manage-head">
+                    <div class="title2">线性回归</div>
+                    <button class="layui-btn layui-btn-normal pro-manage-add">新增预测</button>
+                </div>
+
+                <div class="pro-manage-model">
+
+                    <div class="model-body">
+                      <div>
+                        <table class="layui-table layui-hide" id ="previewList" lay-filter="applyTable">
+                         <!--  <thead>
+                            <tr>
+                              <th>创建时间</th>
+                              <th>创建人</th>
+                              <th>描述</th>
+                              <th>数据</th>
+                              <th>运行状态</th>
+                              <th>预测结果</th>
+                              <th>操作</th>
+                            </tr>
+                          </thead> -->
+                          <!-- <tbody id="previewList"></tbody> -->
+                        </table>
+                      </table>
+                        <script type="text/html" id="barOp">
+                          <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看
+                          </a>
+                          <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                        </script>
+                        <!-- 空白模型 -->
+                        <div class="panel-empty">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  </div>
+  <!-- 新增预测 -->
+  <div class="pop-cont pro-cont-proManageAdd">
+      <div class="layui-form pop-cont-box" lay-filter="proManageAddForm">
+                <div class="layui-form-item layui-form-item1">
+                    <label class="layui-form-label">数据集</label>
+                    <div class="layui-input-block layui-select-style2">
+                        <select id='ops' lay-filter="myselect">
+                            <option value="" selected disabled>请选择数据集</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-item2">
+                    <label class="layui-form-label" >描述</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入应用描述" class="layui-textarea" maxlength="500"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+  </div>
+
+  <!-- 树菜单 -->
+
+  <!-- 树重命名 -->
+
+  <!-- 修改数据类型 -->
+
+  <!-- 列重命名 -->
+
+  <!-- 查看数据 -->
+
+  <!-- 修改分类 -->
+
+  <!-- 修改密码 end -->
+
+  <script src="../static/js/jquery.min.js"></script>
+  <script src="../static/layui/layui.js"></script>
+  <script src="../static/niceScroll/jquery.nicescroll.js"></script>
+  <script src="../static/ztree/js/jquery.ztree.core.min.js"></script>
+  <script src="../static/ztree/js/jquery.ztree.exedit.min.js"></script>
+  <script>
+
+
+
+  layui.config({
+    base: '../static/js/'
+  }).use(['common', 'index']);
+
+
+
+    layui.use(['upload', 'layer','form','jquery','table'], function(){
+        var upload = layui.upload, layer = layui.layer, $ = layui.jquery, form = layui.form,table = layui.table;
+
+        var demoListView = $('#previewList');
+
+        table.render({
+          elem: '#previewList'
+          ,height: 420
+          ,url: '{{url_for("main.task_get_info")}}'
+          ,title: '应用表'
+          ,page: true //开启分页
+          ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+          ,totalRow: true //开启合计行
+          ,cols: [[//表头
+            {type: 'checkbox', fixed:'left'}
+            ,{field: '创建人', title:'创建人', fixed:'left',totalRowText:'合计：'}
+            ,{field: '创建时间', title:'创建时间'}
+            //,{field: '应用id', title: '应用id'}
+            ,{field: '描述', title: '描述'}
+            ,{field: '数据', title: '数据'}
+            ,{field: '运行状态', title: '运行状态'}
+            ,{field: '预测结果', title: '预测结果'}
+            ,{fixed: 'right',title:'操作', align: 'center', toolbar: '#barOp',width:300}
+          ]]
+        });
+
+        //监听行工具事件
+        table.on('tool(applyTable)', function(obj){
+          var data = obj.data // 获取当前行数据
+          ,layEvent = obj.event; //获得 lay-event 对应的值
+          if(lay-event == 'detail'){
+            layer.msg('查看操作');
+          }else if(layEvent == 'del'){
+            layer.confirm('真的删除行么', function(index){
+            var json=eval('('+JSON.stringify(data['应用id'])+')');
+            console.log(json)
+              // 向服务器端发送删除指令
+              $.post('{{url_for("main.task_delete")}}',{"id":json},function(msg){
+                if(msg.code==0){
+                  obj.del();//删除对应行(tr)的DOM结构
+                  layer.close(index);
+                }else{
+                  layer.msg('删除失败!');
+                }
+              });
+
+            });
+          }else if(layEvent == 'edit'){
+            layer.msg('编辑操作');
+          }
+        });
+        var current_index = 0
+        //加载预测tables
+
+        //新增预测数据表
+        function getops(){
+            $.ajax({
+              url:'{{ url_for("main.ds_list")}}',
+              type:"GET",
+              dataType:"json",
+              success:function(result){
+                var list = result;    //返回的数据
+                console.log(list)
+                var ops = document.getElementById("ops"); //server为select定义的id
+                for(var p in list){
+                    var option = document.createElement("option");  // 创建添加option属性
+                    option.setAttribute("value",p); // 给option的value添加值
+                    option.innerText=list[p];     // 打印option对应的纯文本
+                    ops.appendChild(option);           //给select添加option子标签
+                }
+                form.render('select');            // 刷性select，显示出数据
+
+              }
+
+            });
+          }
+        getops();
+        //多文件列表上传
+
+    $(document).on('click', '.pro-manage-add', function() {
+        $('.pro-cont-proManageAdd').removeClass('hide');
+        layer.open({
+            type: 1,
+            title: '新增预测',
+            skin: 'layer-over proManageAdd',
+            area: ['400px', 'auto'], //宽高
+            content: $('.pro-cont-proManageAdd'),
+            btn: ['取消', '确定'],
+            btn2: function(index1, layero1) {
+                var item1 = $.trim($('.pro-cont-proManageAdd .layui-form-item1 select').val()),
+                    item2 = $.trim($('.pro-cont-proManageAdd .layui-form-item2 textarea').val());
+                if (item1 == null || item2 == '') {
+                    if (item1 == null) {
+                        layer.msg('数据表不能为空', { icon: 8 });
+                    }else if(item2 == ''){
+                        layer.msg('描述不能为空')
+                    }
+                    return false;
+                } else {
+                    console.log(item1, item2);
+                    $('.pro-cont-proManageAdd .layui-form-item1 select,.pro-cont-proManageAdd .layui-form-item2 textarea').val('');
+                    //var zTree = $.fn.zTree.getZTreeObj('sel_gcml_tree');
+                    //zTree.cancelSelectedNode();
+                }
+
+                var tr = $(['<tr id="upload-'+ index1 +'">'
+                    ,'<td>2019:8:1:00:00</td>'
+                    ,'<td>admi</td>'
+                    ,'<td>描述内容</td>'
+                    ,'<td><file src="" style="max-width:50px" class="layui-upload-file"></td>'
+                    ,'<td>运行中</td>'
+                    ,'<td>暂无结果</td>'
+                    ,'<td>'
+                    ,'<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                    ,'<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除</button>'
+                    ,'</td>'
+                    ,'</tr>'].join(''));
+
+                demoListView.append(tr);
+                current_index = index1
+            },
+            end: function(index1, layero1) {
+                $('.pro-cont-proManageAdd').addClass('hide');
+            }
+
+        });
+        form.render('select', 'proManageAddForm');
+        $('.pro-cont-proManageAdd .layui-select-tips').addClass('layui-disabled');
+        //$.fn.zTree.init($('#sel_gcml_tree'), setting, zNodes_1);
+
+        //select添加自定义图标
+    });
+
+
+  //select 联动
+  form.on('select(myselect)',function(data){
+    console.log(data.value)
+    var file_name=data.value;
+    item2 = $.trim($('.pro-cont-proManageAdd .layui-form-item2 textarea').val());
+    item2 = "应用描述";
+    console.log(item2)
+
+    $.ajax({
+      type:'POST',
+      url:'{{ url_for("main.task_create")}}',
+      data:{'file_name':file_name,'description':item2},
+      dataType:'json',
+      success:function(res){
+        item1 = res['创建时间']
+        item2 = res['创建人']
+        item3 = res['描述']
+        item4 = res['数据']
+        item5 = res['status']
+        item6 = res['预测结果']
+        console.log(res.code)
+        if(item5 == 0){
+            var tr = demoListView.find('tr#upload-'+ current_index),tds = tr.children();
+            tds.eq(0).html('<span style="color: #5FB878;">'+item1+'</span>');
+            tds.eq(1).html('<span style="color: #5FB878;">'+item2+'</span>');
+            tds.eq(2).html('<span style="color: #5FB878;">'+item3+'</span>');
+            tds.eq(3).html('<span style="color: #5FB878;">'+item4+'</span>');
+            tds.eq(4).html('<span style="color: #5FB878;">运行成功</span>');
+            tds.eq(5).html('<a href="'+res.data.src+'" target="_blank">'+item6+'</a>');
+            //清空操作
+            delete this.files[index]; //删除文件队列已经上传成功的文件
+            layer.closeAll('loading');
+            return;
+        }
+        $('#previewList').html(res)
+      }
+    });
+  });
+
+    });
+  </script>
+
+</body>
+
+</html>

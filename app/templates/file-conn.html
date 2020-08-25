@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <title>数据源</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewerport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="{{url_for('static',filename='layui/css/layui.css')}}" rel="stylesheet" media="all">
+  <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+  <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+  <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+
+<body id="file_data_preview_tbody_01">
+	<div class="main-r-cont style1">
+        <div class="main-r-t">
+            <div class="title">
+                <div class="tit" id="preview_title">{{data_link.name}}</div>
+            </div>
+        </div>
+        <div class="main-r-b">
+            <div class="cus-tab style1 pos-mainRB" id="tab-dataconn">
+                <div class="cus-tab-head">
+                    <ul>
+                        <li class="active" cus-tab-data="jibenxinxi">
+                            <div class="txt">基本信息</div>
+                        </li>
+                        <li class="" cus-tab-data="biaoxinxi">
+                            <div class="txt">表信息</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="cus-tab-body">
+
+
+					<div class="cus-tab-cont active" cus-tab-data="jibenxinxi">
+
+                        <div class="divbox1">
+                            <div class="divbox1-cont">
+							    <div class="layui-form" id="dataconn1" lay-filter="dataconn1">
+									<div class="layui-form-item">
+										<label class="layui-form-label">数据连接名称:</label>
+										<div class="layui-input-block">
+											<input type="text" id="dataLinkName" name="dataLinkName" class="layui-input bianji" value={{data_link.name}}>
+											<!-- <span id="linkName" class="chakan">{{data_link.name}}</span> -->
+											<input type="hidden" name="dataLinkId" value={{data_link.data_id}}>
+										</div>
+									</div>
+
+									<div class="layui-form-item" lay-filter="dataCon">
+										<label class="layui-form-label"><span class="fc-red">*</span>数据连接分类：</label>
+										<div class="layui-input-block bianji">
+										  <select id="fileClassifySelect">
+											<option value=1 name="">默认目录</option>
+											{% for catalog in catalogs%}
+											<option value={{catalog.catalog_id}} name="">{{catalog.name}}</option>
+											{% endfor %}
+										  </select>
+										  <div class="layui-unselect layui-form-select">
+											<div class="layui-select-title">
+												<input type="text" placeholder="请选择" value="默认目录" readonly="" class="layui-input layui-unselect"><i class="layui-edge"></i>
+											</div>
+												<dl class="layui-anim layui-anim-upbit">
+													<dd lay-value=1 class="layui-this">默认目录</dd>
+													{% for catalog in catalogs %}
+													<dd lay-value={{catalog.catalog_id}} class="">{{catalog.name}}</dd>
+													{% endfor %}
+												</dl>
+										  </div>
+										  <input type="hidden" value="true" id="isEditPageFile">
+										</div>
+										<!-- <div class="layui-input-block chakan"><span id="classifyName">王伟2</span></div> -->
+									</div>
+
+									<div class="layui-form-item">
+										<label class="layui-form-label">类型：</label>
+										<div class="layui-input-block">{{data_link.data_type}}
+                                        <input name="fileType" type="hidden" value="EXCEL">
+                                            
+                                            <input name="filePath" type="hidden" value="">
+                                            <input name="fileName" type="hidden" value="">
+                                            <input name="split" type="hidden" value="">
+                                        </div>
+									</div>
+
+									<div class="layui-form-item" id="datalink-createtime">
+										<label class="layui-form-label">创建时间：</label>
+										<div class="layui-input-block">{{data_link.create_time}}</div>
+									</div>
+
+									<div class="layui-form-item" id="datalink-author">
+										<label class="layui-form-label">创建人：</label>
+										<div class="layui-input-block">{{data_link.creator}}</div>
+									</div>
+								</div>
+							</div>
+							<div class="divbox1-bottom">
+                                <button class="layui-btn layui-btn-normal hide" id="tab-dataconn1-save-on-page">保存</button>
+                                <button class="layui-btn layui-btn-primary hide" id="tab-dataconn1-cancel-on-page">取消</button>
+								<!-- <button class="layui-btn layui-btn-normal chakan" id="tab-dataconn1-edit-on-page">编辑</button> -->
+								<button class="layui-btn layui-btn-normal bianji" id="update_data_link_name_btn">保存</button>
+								<button class="layui-btn layui-btn-primary bianji" id="cancel_data_link_name_btn">取消</button>
+							</div>
+						</div>
+					</div>
+                    <div class="cus-tab-cont" cus-tab-data="biaoxinxi">
+                        <div class="divbox">
+                            <div class="search-box2">
+                                <input type="text" name="targetDataTableName" onkeyup="File_Preview_Ins.loadDataLinkTableList()" class="search-input" placeholder="输入表名搜索">
+                                <div class="search-submit searchTableList-file"></div>
+                                <div class="search-del searchTableList-file"></div>
+                            </div>
+                            <div class="table1" id="datalink-table-list-div">
+								<table lay-filter="table-demo1">
+								  <thead>
+									<tr>
+									  <th lay-data="{field:'num', width:80}">序号</th>
+									  <th lay-data="{field:'name'}">表名</th>
+									  <th lay-data="{field:'operate', width: 220}">操作</th>
+									</tr>
+								  </thead>
+								  <tbody>
+                                    {%for s in sheets.data%}
+									<tr>
+									  <td>{{s.num}}</td>
+									  <td>{{s.sheet_name}}</td>
+									  <td>
+										<a href="/ds/get/file/paging/info/{{data_link.data_id}}/{{s.sheet_name}}">查看</a>
+										<!-- <a onclick="JavaScript:File_Preview_Ins.exportTable(this);" value={{s.sheet_name}}>导出</a> -->
+                                        <a href={{path}} value={{s.sheet_name}}>导出</a>
+										<a onclick="JavaScript:DataTableUpdate.deleteTable(this);" value={{s.sheet_name}}>删除</a>
+									  </td>
+									</tr>
+                                    {%endfor%}
+								  </tbody>
+								</table>
+                            </div>
+                        </div>
+                    </div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+    <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+    <script src="{{url_for('static', filename='layui/layui.js')}}"></script>
+    <script src="{{url_for('static',filename='spinner/js/jquery.spinner.js')}}"></script>
+    <script src="{{url_for('static',filename='nicescroll/jquery.nicescroll.js')}}"></script>
+    <script src="{{url_for('static',filename='ztree/js/jquery.ztree.core.min.js')}}"></script>
+    <script src="{{url_for('static',filename='ztree/js/jquery.ztree.exedit.js')}}"></script>
+    <script src="{{url_for('static',filename='localForage/localforage.min.js')}}"></script>
+ 	<script src="{{url_for('static',filename='js/jquery.fileDownload.min.js')}}"></script>
+    <script>
+    layui.config({
+        base: '{{url_for('static',filename='js/')}}'
+    }).use(['common', 'data-connection'],function(){
+    	var cur_index = '';
+    	if(cur_index != null && cur_index.length > 0){
+    		$('#tab-dataconn .cus-tab-head li').eq(cur_index).click();
+    	}
+    });
+    </script>
+    <script src="{{url_for('static', filename='js/utils/pop.js')}}"></script>
+    <script type="text/javascript">
+    $(function(){
+    	var classifyName =  $("#fileClassifySelect").find("option:selected").text()
+    	$("#classifyName").text(classifyName);
+    })
+    
+    var DataTableUpdate = {};
+
+    DataTableUpdate.deleteTable = function(obj){
+        var thisObj = $(obj);
+		var name = thisObj.attr("value");
+         layer.confirm('确定要删除？', {
+             title:"删除",
+             btn: ['取消', '确定'],
+             btn2: function(index, layero) {
+                 if(name != null){
+                    console.log("id为空?");
+                    var id = {{data_link.data_id}};
+                    console.log(id);
+                    console.log(name);
+                    $.post("/ds/delete/file/paging/data",{"data_id":id, "sheet_name":name},function(e){
+                        if(e.status == "OK"){
+                            pop_succeed(e.msg)
+                            //history.go(0);
+                            var cur = $('#tab-dataconn .cus-tab-head li.active').index();
+                            window.location.href = "/ds/get/data_list";//+cur;
+                        }else{
+                            pop_failure(e.msg);
+                        }
+                    });
+                }
+             }
+         });
+    }
+
+    var File_Preview_Ins = {};
+    var classifyId="8a92e10f6cb34f48016cb6fa39910085"
+
+    //保存 数据连接.
+    //dataLinkName 数据连接名称
+    //fileType 导入的数据类型
+    //tabNameAry 各个Tab的名称.
+    //headIndexAry 各个Tab中、表头行的 行号.
+    //filePathAry 导入的文件的 路径(一次会导入多个)
+    //fileNameAry 导入文件的名称(一次会导入多个)
+    //tabFilePahtAry Tab对应的文件
+    //tabIndexAry 在对应文件中的 sheet的序号.
+    File_Preview_Ins.saveDataLink = function(dataLinkName,fileType,tabNameAry,headIndexAry,filePathAry,fileNameAry,split,tabFilePahtAry,tabIndexAry){
+    	//将参数信息组装、提交到服务器、保存.
+
+    	//拼接提交数据.
+    	var data = "dataLinkName="+dataLinkName;
+    	data += "&fileType="+fileType;
+
+    	for(var i=0;i<tabNameAry.length;i++){
+    		var tabName = tabNameAry[i];
+    		data += "&tabName="+tabName;
+    	}
+
+    	for(var i=0;i<headIndexAry.length;i++){
+    		var headIndex = headIndexAry[i];
+    		data += "&headIndex="+headIndex;
+    	}
+
+    	//filePathAry,fileNameAry,split
+    	for(var i=0;i<filePathAry.length;i++){
+    		var filePath = filePathAry[i];
+    		data += "&filePath="+filePath;
+    	}
+
+    	for(var i=0;i<fileNameAry.length;i++){
+    		var fileName = fileNameAry[i];
+    		data += "&fileName="+fileName;
+    	}
+
+
+    	for(var i=0;i<tabFilePahtAry.length;i++){
+    		var tabFilePaht = tabFilePahtAry[i];
+    		data += "&tabFilePaht="+tabFilePaht;
+    	}
+
+
+    	for(var i=0;i<tabIndexAry.length;i++){
+    		var tabIndex = tabIndexAry[i];
+    		data += "&tabIndex="+tabIndex;
+    	}
+
+
+    	//
+    	data += "&split="+split;
+
+
+    	var saveURL = "/FileDataLink/save";//"/DataI/FileDataLink/save.do";
+
+    	$.ajax({
+   		   type: "POST",
+   		   url: saveURL,
+   		   data: data,
+   		   success: function(rsData){
+
+   		    	layer = layui.layer;
+
+   		    	if("ERROR" == rsData['status']){
+   		    		pop_failure('保存失败:<br/>'+rsData['msg']);
+   		    	}else{
+   		    		pop_succeed("保存成功.");
+   		    		//将 保存的信息绑定到页面.(方便下一次更改)
+   		    		//转发页面.(切换Tab)
+
+   		    		var dataLinkResult = rsData['returnData']['dataLinkResult'];
+   		    		//
+
+   		    		var dataLinkIns = dataLinkResult['dataLink'];
+   		    		var dataLinkId = dataLinkIns['id'];
+   		    		var author = dataLinkIns['author'];
+
+   		    		var dataLinkCreateTimeStr = dataLinkResult['dataLinkCreateTimeStr'];
+
+   		    		$("input[name='dataLinkId']").val(dataLinkId);
+
+   		    		//创建时间、创建人.
+			    	//datalink-createtime/datalink-author
+			    	$("#datalink-createtime").find(".layui-input-block").text(dataLinkCreateTimeStr)
+			    	$("#datalink-author").find(".layui-input-block").text(author)
+
+			    	File_Preview_Ins.showUpdateBtn();
+
+   		    		//保存成功、取消其他tab的disabled
+			    	$('#tab-dataconn .cus-tab-head li.disabled').removeClass('disabled');
+   		    	}
+   		   }
+   		});
+
+    }
+
+
+    //更新.
+    File_Preview_Ins.updateDataLink = function(){
+    	//
+    	var dataLinkDIV = $("#tab-dataconn");
+        var dataLinkName =  $("input[name='dataLinkName']",dataLinkDIV).val();
+        var dataLinkId = $("input[name='dataLinkId']",dataLinkDIV).val();
+        var classifyId = $("#fileClassifySelect").find("option:selected").val();
+        var classifyName = $("#fileClassifySelect").find("option:selected").text();
+
+        if(dataLinkName == null || dataLinkName == "" || $.trim(dataLinkName).length == 0){
+        	pop_info('校验失败:<br/>'+"数据连接名称不能为空;请填写;");
+        }else{
+        	//执行更新.
+        	dataLinkName = $.trim(dataLinkName);
+			console.log(dataLinkName, dataLinkId, classifyId);
+            console.log("编辑更新保存");
+        	var updateURL = "/ds/modify/data";//"/DataI/FileDataLink/update.do";
+        	$.ajax({
+        		type: "POST",
+        		url: updateURL,
+        		data: {data_link_id:dataLinkId, data_link_name:dataLinkName, catalog_id:classifyId},//"dataLinkId="+dataLinkId+"&dataLinkName="+dataLinkName+"&classifyId="+classifyId,
+        		success: function(rsData){
+					console.log(rsData);
+        			if("ERROR" == rsData['status']){
+						pop_failure(rsData['msg']);
+					}else if("INFO" == rsData['status']){
+                        pop_info(rsData['msg']);
+                    }else {
+						pop_succeed("更改数据连接成功.");
+						//更新名称.
+                        console.log("classifId:", classifyId);
+						$("#preview_title").text(dataLinkName);
+						//window.parent.location = "/ds/data_list/main/"+classifyId;
+
+                        // "/DataI/DataLink/Main.do?dataLinkId="+dataLinkId;
+                        /*
+
+						var zTree = parent.mainLeftZtree;
+		               	//刷新数据库连接树
+		               	var treeNode =zTree.getNodeByParam("id",dataLinkId );
+                       // var treeNode = zTree.getNodeByParam("id", dataLinkId, null);
+	                    treeNode.name = dataLinkName;
+	                    if(classifyId != treeNode.classify.id){
+	                    	var treeNodes = zTree.getNodes();
+	                    	for(var i in treeNodes){
+                    			if(treeNodes[i].name == classifyName){
+                    				zTree.moveNode(treeNodes[i],treeNode, "inner");
+	                    			break;
+                    			}
+	                    	}
+	                    }else{
+	                    	zTree.updateNode(treeNode);
+	                    }
+
+	                    */
+
+					}
+
+        		}
+        	});
+
+        }
+
+    }
+
+
+    //显示更新按钮.
+    File_Preview_Ins.showUpdateBtn = function(){
+    	$("#tab-dataconn1-save-on-page").addClass("hide");
+    	$("#tab-dataconn1-update-on-page").removeClass("hide");
+
+    	//cus-layui-tab/tab-head-info
+    	$(".cus-layui-tab").hide();
+    	$("#tab-head-info").hide();
+
+    	//显示 保存用户、保存时间.
+    	//datalink-createtime/datalink-author
+    	$("#datalink-createtime").removeClass("hide");
+    	$("#datalink-author").removeClass("hide");
+    	//layui-input-block
+    }
+
+    $(document).on('click', '.searchTableList-file.search-submit', function() {
+    	File_Preview_Ins.loadDataLinkTableList();
+    });
+
+    $(document).on('click', '.searchTableList-file.search-del', function() {
+    	$("input[name='targetDataTableName']").val('');
+    	File_Preview_Ins.loadDataLinkTableList();
+    });
+
+    //加载 数据连接的表格.
+
+
+
+    //加载 数据连接的主题 列表.
+
+
+    //导出表数据.
+    File_Preview_Ins.exportTable = function(obj){
+        var thisObj = $(obj);
+		var tableId = thisObj.attr("value");
+        console.log(tableId);
+    	var url = "/FileDataLink/export/"+tableId; <!-- "/DataI/FileDataLink/export.do?tableId="+tableId; -->
+		var saveLoadingDialogIdx = pop_running("正在导出，请稍等...");
+
+		$.fileDownload(url,{
+		       httpMethod: 'POST',
+		       prepareCallback:function(url){
+		          //common.layer.loading();
+		       },
+		       successCallback:function(url){
+			      //下载成功
+			      pop_succeed("导出成功");
+		          layer.close(saveLoadingDialogIdx);
+		       },
+		       failCallback: function (html, url) {
+		          var json = JSON.parse(html);
+		          console.log(json);
+		          if(json.status == 512){
+		             //下载失败
+		          }
+		          layer.close(saveLoadingDialogIdx);
+		          pop_failure("导出失败");
+		       }
+		});
+    }
+
+
+    //更新按钮.
+
+
+    //基本信息保存按钮
+    //ID加了-on-page
+    $(document).on('click', '#tab-dataconn1-save-on-page', function() {
+
+    	layer = layui.layer;
+        //layer.msg('保存成功-001', { icon: 7 });
+
+        //$('#tab-dataconn .cus-tab-head li.disabled').removeClass('disabled');
+
+
+        //收集数据连接名称、类型、每一个tab的名称、每一个Tab的表头行值.
+        //dataLinkName
+        //fileType
+        //inp-datalink-tab-name
+        //table-head
+
+        //校验错误信息.
+        var errorMsgAry = new Array();
+
+
+        var dataLinkDIV = $("#tab-dataconn");
+        var dataLinkName =  $("input[name='dataLinkName']",dataLinkDIV).val();
+        var fileType =  $("input[name='fileType']",dataLinkDIV).val();
+
+
+        if(dataLinkName == null || dataLinkName == "" || $.trim(dataLinkName).length == 0){
+        	errorMsgAry.push("数据连接名称不能为空;请填写;");
+        }
+
+
+        var tabNameAry = new Array();
+        $(".inp-datalink-tab-name",dataLinkDIV).each(function(){
+        	var tmpTabName = $(this).val();
+        	if(tmpTabName == null || tmpTabName == "" || $.trim(tmpTabName).length == 0){
+            	errorMsgAry.push("数据表(Tab)名称不能为空;请填写;");
+            }
+        	tabNameAry.push(tmpTabName);
+        });
+
+        //必须选择1个或N个Tab.
+        if(tabNameAry.length <= 0){
+        	errorMsgAry.push("必须至少选择一个Tab.");
+        }
+
+        var headIdxAry = new Array();
+        //active/table-head
+        $(".layui-tab-item").each(function(itemIdx){
+
+        	var tmpDiv = $(this).find("tr[class='active']").find("div[class='table-head']");
+        	var headIdx = tmpDiv.find("i").text();
+
+        	headIdxAry.push(headIdx);
+
+        	if(headIdx == null || headIdx == 0){
+        		//没有选择 表头.
+        		errorMsgAry.push("第"+(itemIdx + 1)+"个Tab的表头行尚未选择、请选择.");
+        	}
+
+        });
+
+
+        //提取 文件路径、文件名称、文件分隔符.
+        //filePath  fileName split
+        var filePathAry = new Array();
+        var fileNameAry = new Array();
+        var split = "";
+
+        $("input[name='filePath']",dataLinkDIV).each(function(){
+        	var tmpValue = $(this).val();
+        	filePathAry.push(tmpValue);
+        });
+
+        $("input[name='fileName']",dataLinkDIV).each(function(){
+        	var tmpValue = $(this).val();
+        	fileNameAry.push(tmpValue);
+        });
+
+        split = $("input[name='split']").val();
+        if(split == null || split == ""){
+        	split = "";
+        }
+
+
+        //Tab所属的文件.path--path是 路径和索引的 聚合信息.
+        var tabFilePahtAry = new Array();
+        $(".inp-datalink-tab-path",dataLinkDIV).each(function(){
+        	var tmpPath = $(this).val();
+        	tabFilePahtAry.push(tmpPath);
+        });
+
+        //tab 在 指定的文件 path 中的sheet序号.
+        var tabIndexAry = new Array();
+        $(".inp-datalink-tab-index",dataLinkDIV).each(function(){
+        	var tmpIndex = $(this).val();
+        	tabIndexAry.push(tmpIndex);
+        });
+
+
+        if(errorMsgAry.length > 0){
+
+        	//本地校验数据出错.
+        	var tmpErrorMsg = "";
+        	tmpErrorMsg = errorMsgAry.join("<br/>");
+        	pop_info(tmpErrorMsg);
+
+        }else{
+
+
+
+        	//异步校验名称.
+        	var checkURL = "/FileDataLink/checkDataLinkNameUnique"; //"/DataI/FileDataLink/checkDataLinkNameUnique.do";
+            $.ajax({
+                type: "POST",
+                url: checkURL,
+                data: "dataLinkName=" + dataLinkName,
+                success: function (rsData) {
+                    var tmpMsg = rsData['msg'];
+                    if ("ERROR" == rsData['status']) {
+                        pop_failure(tmpMsg);
+                    } else if ("INFO" == rsData['status']) {
+                        pop_info(tmpMsg);
+                    } else {
+                        //可以保存.名称合法.
+                        File_Preview_Ins.saveDataLink(dataLinkName, fileType, tabNameAry, headIdxAry, filePathAry, fileNameAry, split, tabFilePahtAry, tabIndexAry);
+                    }
+                }
+            });
+
+        }
+
+
+
+
+    });
+
+    //创建数据主题
+
+
+    $(document).on('click','#update_data_link_name_btn',function(){
+    	File_Preview_Ins.updateDataLink();
+    });
+
+    //$(document).on('click','#tab-dataconn1-edit-on-page',function(){
+    	//$(".chakan").addClass("hide");
+        //$(".bianji").removeClass("hide");
+    //});
+
+    $(document).on('click','#cancel_data_link_name_btn',function(){
+    	$(".bianji").addClass("hide");
+        $(".chakan").removeClass("hide");
+        var arr = $("dl dd");
+        for(var i=0; i<arr.length; i++){
+        	if($("dl dd")[i].getAttribute("lay-value") == classifyId){
+        		$("dl dd")[i].click();
+        	}
+        }
+        $("#dataLinkName").val('test3')
+
+    });
+
+    </script>
+
+
+
+</body>
+
+</html>

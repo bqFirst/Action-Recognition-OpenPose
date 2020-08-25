@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <title>数据源</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewerport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="{{url_for('static',filename='layui/css/layui.css')}}" rel="stylesheet" media="all">
+  <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+  <!-- 增加以下script -->
+  <script type="text/javascript">
+    //子页面的iframe调用父的iframe方法
+    //在左侧树列表中选中当前数据连接id对应的列表
+    //function checkedTree(id){
+       // var zTree = $.fn.zTree.getZTreeObj('main_left_tree');
+       // var treeNode =zTree.getNodeByParam("id",id);
+        //zTree.selectNode(treeNode,false,false);
+    //}
+  </script>
+  <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+  <!--[if lt IE 9]>
+      <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+      <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body class="layui-layout-body" id="data-link-main-body"> <!-- 增加id="data-link-main-body" -->
+  <div class="layui-layout layui-layout-sjy packup">
+    <div class="layui-header">
+      <a href="javascript:void(0);" class="layui-logo" title="罗摩数据">
+        <div class="logo-img"><img src="{{url_for('static',filename='images/logo.png')}}"></div>
+        <div class="logo-name"></div>
+      </a>
+      <ul class="layui-nav layui-layout-center">
+      <li class="layui-nav-item"><a href="task" title="应用"><i class="icon icon-yy-manage"></i>应用</a></li>
+      <li class="layui-nav-item"><a href="javascript:void(0);" title="工程"><i class="icon icon-gg-manage"></i>工程</a></li>
+        <li class="layui-nav-item layui-this"><a href="javascript:void(0);" title="数据源"><i class="icon icon-sjy-database"></i>数据源</a></li>
+
+      </ul>
+
+    </div>
+    <div class="layui-side">
+
+    </div>
+    <div class="layui-body">
+      <div class="main">
+        <div class="main-l style1">
+          <div class="main-l-t">
+            <div class="title">
+              <div class="tit">数据连接</div>
+              <div class="add-btn pop-addDataConnection" title="新建数据连接"></div>
+            </div>
+
+          </div>
+          <div class="main-l-b main-l-b-tree scroll">
+            <div class="layui-collapse">
+              <div class="layui-colla-item">
+                <div class="layui-colla-title-no-collapse">
+                  <div class="title-name">我的数据连接</div>
+                  <div class="icon-btn newFolder fr" title="新建文件夹"></div>
+                </div>
+                <div class="layui-colla-content layui-show">
+                  <ul class="ztree ztree1" id="main_left_tree"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main-r">
+          <!-- <iframe class="main-iframe" src="file-conn.html"></iframe> -->
+          <!-- 增加以下iframe -->
+          <iframe onload="finish(this)" class="main-iframe" name="main-iframe" id="main-iframe"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 新建数据连接 -->
+  <div class="pop-cont pop-cont-addDataConnection" id="file-upload">
+    <div class="addDataConnection", id=1>
+      <dl>
+        <dt>从本地文件添加<em>(可上传文件大小为5M以内)</em></dt>
+        <dd>
+          <ul>
+            <li>
+              <div class="item fileSelect" lay-data="{exts:'xls|xlsx'}">
+                <div class="text-t">
+                  <img src="{{url_for('static',filename='images/getdata/getdata_1.jpg')}}" alt="Excel">
+                </div>
+                <div class="text-b">Excel</div>
+              </div>
+              <input class="layui-upload-file" type="file" accept="file" name="file" multiple>
+<!--                   <button type="button" class="layui-btn"></button> -->
+            </li>
+            <li>
+              <div class="item fileSelect" lay-data="{exts:'csv'}">
+                <div class="text-t">
+                  <img src="{{url_for('static',filename='images/getdata/getdata_2.jpg')}}" alt="CSV上传">
+                </div>
+                <div class="text-b">CSV上传</div>
+              </div>
+              <input class="layui-upload-file" type="file" accept="file" name="file" multiple>
+            </li>
+
+          </ul>
+        </dd>
+      </dl>
+
+    </div>
+  </div>
+  <!-- 树菜单 -->
+  <div class="popout-box layui-anim layui-anim-upbit popout-mainLeftTree">
+    <ul>
+        <li>
+            <a href="javascript:void(0);" id="mainLeftTree_rename">
+                <i class="icon icon-sjjm-bianji"></i>重命名
+            </a>
+        </li>
+         	
+        <li>
+            <a href="javascript:void(0);" id="mainLeftTree_del">
+                <i class="icon icon-sjjm-shanchu"></i>删除
+            </a>
+        </li>
+
+    </ul>
+  </div>
+  <!-- 树重命名 -->
+  <div class="pop-cont pop-cont-mainLeftTreeRename hide">
+    <div class="layui-form pop-cont-box1">
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <input type="text" placeholder="请输入名称" class="layui-input">
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 修改分类 -->
+  <div class="pop-cont-addToCategory hide">
+    <div class="layui-form pop-cont-box3">
+      <div class="layui-form-item">
+        <label class="layui-form-label">分类</label>
+        <div class="layui-input-block">
+          <div class="fl" style="width: 200px;">
+            <select lay-ignore class="select-style" style="width: 200px;float: left" id="select_classifies" name="classify_select"></select>
+          </div>
+          <a href="javascript:void(0);" id="addClassify" class="fl margin-left10 fz-16 icon-sjy-xjwjj fc-gray2"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 列重命名 -->
+
+  <!-- 查看数据 -->
+  <div class="pop-cont pop-cont-viewData hide">
+    <div class="table-box margin-top20">
+      <div class="table-box-tool layui-form">
+        <div class="tool-l">
+          <div class="row-num">
+            显示
+            <ul class="hide" id="refresh-data-params">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+            </ul>
+          </div>
+        </div>
+        <div class="tool-r">
+          <div class="layui-btn layui-btn-primary"><i class="icon-sjy-daochu1"></i>导出数据</div>
+          <div class="layui-btn layui-btn-primary" data-type="reload"><i class="icon-sjy-refresh"></i>刷新数据</div>
+        </div>
+      </div>
+      <table class="layui-hide" id="table_demo7"></table>
+    </div>
+  </div>
+    <!-- 文本文件上传 start -->
+    <div class="pop-cont-uploadText hide">
+        <div class="margin-top15 margin-bottom10 margin-left5 margin-right5">
+            <div class="margin-bottom10">选择你的列分隔符号：</div>
+            <div class="color-9">本功能区分中英文符号，以下可选项均为英文符号，如需以其他分隔符号或中文符号分隔，请在其他项中输入。</div>
+            <div class="margin-top10 form-style layui-form" lay-filter="split_value_type">
+                <div class="up-radio-inline margin-right10">
+                     <input type="radio" name="split"  id="split" value="," lay-filter="filter_split_radio" >,
+                </div>
+                <div class="up-radio-inline margin-right10">
+                    <input type="radio" name="split" id="split" value=";" lay-filter="filter_split_radio">;
+                </div>
+                <div class="up-radio-inline margin-right20">
+                    <input type="radio" name="split" id="split" value="\t" lay-filter="filter_split_radio">制表符
+                </div>
+                <div class="up-radio-inline">
+                    <input type="radio" name="split" id="split" value="other" lay-filter="filter_split_radio">其他
+                    <input type="text" id="other" class="up-form-control input inline-block margin0" style="width: 100px;" disabled="true">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 文本文件上传 end -->
+    
+    <div class="pop-cont pop-cont-viewData hide">
+        <div class="table-box margin-top20 margin-left20 margin-right20">
+            <div class="table-box-tool layui-form">
+                <div class="tool-r">
+                	<ul class="hide" id="refresh-data-params">
+                		<li></li>
+                		<li></li>
+                		<li></li>
+                		<li></li>
+                	</ul>
+                    <div class="layui-btn layui-btn-primary" data-type="reload"><i class="icon-sjy-refresh"></i>刷新数据</div>
+                </div>
+            </div>
+            <table id="table_demo7"></table>
+        </div>
+    </div>
+  <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+  <script src="{{url_for('static',filename='layui/layui.js')}}"></script>
+  <script src="{{url_for('static',filename='spinner/js/jquery.spinner.js')}}"></script>
+  <script src="{{url_for('static',filename='nicescroll/jquery.nicescroll.js')}}"></script>
+  <script src="{{url_for('static',filename='ztree/js/jquery.ztree.core.min.js')}}"></script>
+  <script src="{{url_for('static',filename='ztree/js/jquery.ztree.exedit.js')}}"></script>
+  <script src="{{url_for('static',filename='localForage/localforage.min.js')}}"></script>
+  <script src="{{url_for('static',filename='ztree/js/jquery.ztree.exedit.min.js')}}"></script>
+  <!-- 增加以下script -->
+  <script src="{{url_for('static',filename='js/dataLink_index.js')}}"></script>
+    <script src="{{url_for('static',filename='js/utils/pop.js')}}"></script>
+
+
+  <script>
+  //var dataLinkId1 = '';
+  //var ctx = '/DataI';
+  layui.config({
+    base: '{{url_for('static',filename='js/')}}',//'{{url_for('static',filename='js/dataSource/')}}'
+   }).use(['common','data-link-main']);<!--去掉index 增加data-link-main,替换掉DataSource路径 -->
+  </script>
+
+  <script type="text/javascript">
+
+
+	    var DataLinkMain_Ins = {};
+
+
+	  	//文件上传的进度条-弹出框的 索引号.
+	    DataLinkMain_Ins.fileUploadLayerIndex = null;
+
+	    DataLinkMain_Ins.msgLoadIndex = null;
+
+	    //fileArray 文件数组
+	    //文件类型.fileType
+	    //文件分隔符.(可能为空)
+	    DataLinkMain_Ins.buildForm_V2 =  function(fileArray,fileType,split) {
+	    	//debugger;
+	    	var dataLinkMainBody = $("#data-link-main-body");
+	    	$("form[id='forward']",dataLinkMainBody).remove();
+
+	    	var form = $("<form target='main-iframe'></form>");
+	    	form.attr("action","/ds/preview/data");//表单提交url，//"/DataI/FileDataLink/filePreview.do"
+	    	form.addClass("hide");
+	    	form.attr("method","post");
+	    	form.attr("id","forward");
+
+	    	if(fileArray != null && fileArray.length >0){
+                console.log(fileArray);
+	    		for(var i=0;i<fileArray.length;i++){
+
+	    			var fileIns = fileArray[i];
+	    			var fileName = fileIns['file_name'];
+	    			var filePath = fileIns['path'];
+                    var fileId = fileIns['file_id'];
+                    var catalogId = fileIns['catalog_id'];
+                    console.log(fileIns);
+	    			form.append("<input name='fileName' value=\"" + fileName + "\"/>");//表单提交内容
+	    			form.append("<input name='filePath' value=\"" + filePath + "\"/>");//表单提交内容
+                    form.append("<input name='fileId' value=\"" + fileId + "\"/>");//表单提交内容
+                    form.append("<input name='catalogId' value=\"" + catalogId + "\"/>");//表单提交内容
+	    		}
+	    	}
+	    	form.append("<input name='fileType' value=\"" + fileType + "\"/>");//表单提交内容
+
+	    	if (split != undefined && split != null && split != "") {
+	            form.append("<input name='split' value=\"" + split + "\"/>")
+	        }
+
+	    	form.appendTo(dataLinkMainBody);
+	    }
+
+	    //关闭--文件上传的-进度条对画框.
+	    DataLinkMain_Ins.closeFileUploadLayer = function(){
+	    	//console.log('执行关闭.:'+DataLinkMain_Ins.fileUploadLayerIndex);
+	    	if(DataLinkMain_Ins.fileUploadLayerIndex != null){
+	    		layer.close(DataLinkMain_Ins.fileUploadLayerIndex); //
+	    	}
+	    }
+
+	    //文件上传时、收集的文件内容.
+	    DataLinkMain_Ins.fileArray= new Array();
+
+	    //初始化 文件 类型的 数据 链接.
+	    DataLinkMain_Ins.initFileLink = function(){
+	    	
+	    	layui.use(['upload','form'], function(){
+	    		var upload = layui.upload;
+	    		var form = layui.form;
+                console.log("，目录id");
+                console.log($('.addDataConnection').attr("id"));
+	    		upload.render({
+	    			  elem: '.fileSelect'
+	    			  ,accept : 'file'
+                      ,data: {"catalog_id": $('.addDataConnection').attr("id")}
+	    			  ,url: '{{ url_for("main.upload_view")}}'//'/DataI/FileDataLink/uploadFile.do'
+	    			  ,multiple: true
+	    			  ,size:20480
+	    			  ,before: function(obj){
+	    				  	//obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+	    				  	//打开-文件上传-进度条-并且收集 对话框的索引-用于 关闭.
+                           //DataLinkMain_Ins.fileUploadLayerIndex = pop_running("正在上传、解析文件.");
+	    			  }
+	    			  //,acceptMime:'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	    			  ,allDone: function(obj){ //当文件全部被提交后，才触发
+
+	    				  console.log('file-done.');
+
+	    			    	var tmpFileAry = new Array();
+    			    		for(var i=0;i<DataLinkMain_Ins.fileArray.length;i++){
+    			    			tmpFileAry.push(DataLinkMain_Ins.fileArray[i]);
+    			    		}
+    			    		DataLinkMain_Ins.fileArray = new Array();//重置 fileAry、到下一次上传时使用.
+
+	    			    	if(obj.aborted > 0){
+	    			    		pop_failure("文件上传失败");
+	    			    	}else{
+	    			    		console.log('文件上传成功')
+	    			    		//
+	    			    		if("xls|xlsx" == this.exts){
+
+	    			    			//Excel
+                                    console.log(tmpFileAry);
+		    			    		DataLinkMain_Ins.buildForm_V2(tmpFileAry,"EXCEL");
+		    			    		//提交表单.
+		    				    	$("form[id='forward']",$("#data-link-main-body")).submit();
+		    			    		//关闭对话框.
+                                    //layer.close();
+                                    layer.close(DataLinkMain_Ins.fileUploadLayerIndex);
+		    			    		layer.close(addNewDataLinkDalogIndex);
+
+
+		    			    	}else if(this.exts == "txt" || this.exts == "json" || this.exts == "csv"){
+		    			    		//弹出分隔符选择框.
+		    			    		var tmpFileType = this.exts.toUpperCase();
+
+		    			    		$('.pop-cont-uploadText').removeClass('hide');
+	                                var uploadText = layer.open({
+	                                    type: 1,
+	                                    scrollbar: false,
+	                                    area: ['440px', 'auto'],
+	                                    title: '文本文件上传',
+	                                    content: $('.pop-cont-uploadText'),
+	                                    success: function(layero, index){
+	                                    	//设置默认的分隔符.(默认打开第一个.)
+
+	                                    	$("input[name='split']").attr("checked",false);
+	                                       	$("input[name='split']").each(function(){
+	                                       		//自定义的.
+	                                       		var _this_val = $(this).val();
+	                                       		if("other" == _this_val){
+	                                       			$(this).next().val("");
+	                                       		}
+	                                       		if("," == _this_val){
+	                                       			$(this).attr("checked",true);
+	                                       			$(this).click();
+	                                       			//切换内容事件.
+	                                       			chageSplitRadioValue(",");
+	                                       			return false;
+	                                       		}
+	                                       	});
+	                                       	form.render();//渲染.
+	                                    },
+	                                    btnAlign: 'c',
+	                                    btn: [ '取消','确定'],
+	                                    btn1: function(index, layero) {
+	                                    	if(DataLinkMain_Ins.fileUploadLayerIndex != null){
+	                                    		layer.close(DataLinkMain_Ins.fileUploadLayerIndex);
+	                                    	}
+	                                    	//关闭对话框.
+        		    			    		layer.close(uploadText);
+        		    			    		//layer.close(addNewDataLinkDalogIndex);
+	                                    	return false;
+	                                    },
+	                                    btn2: function(index, layero) {
+	                                    	//自定义分隔符
+	                                        var val = $("input[name='split']:checked").val();
+	                                        if (val == "other") {
+	                                            val = $("#other").val();
+
+	                                        }
+	                                        /*
+	                                        console.log('val:['+val+']');
+	                                        return false;
+	                                        */
+	                                        if ($.trim(val) != "") {
+
+	                                        	var tmpSplit = htmlEscape(val);
+
+
+	                                        	DataLinkMain_Ins.buildForm_V2(tmpFileAry,tmpFileType,tmpSplit);
+	                                        	DataLinkMain_Ins.msgLoadIndex = pop_running("正在加载数据");
+	                                        	$("form[id='forward']",$("#data-link-main-body")).submit();
+	                                        	//关闭对话框.
+	        		    			    		layer.close(uploadText);
+	        		    			    		layer.close(addNewDataLinkDalogIndex);
+
+
+	                                        } else {
+	                                            pop_info("请输入分隔符...");
+	                                            return false;
+	                                        }
+
+
+	                                    },
+	                                    end: function() {
+	                                    	layer.close(uploadText);
+	                                    	//关闭对话框.
+        		    			    		layer.close(uploadText);
+        		    			    		//layer.close(addNewDataLinkDalogIndex);
+
+	                                    	$('.pop-cont-uploadText').addClass('hide');
+	                                    }
+	                                });
+
+
+		    			    	}
+
+
+
+	    			    	}
+
+
+
+	    			  }
+	    			  ,done: function(res, index, uploadIns){ //每个文件提交一次触发一次。详见“请求成功的回调”
+                        console.log(res);
+	    			  	console.log('运行到此处');
+	    			  	//收集上传的文件内容.
+	    			  	DataLinkMain_Ins.fileArray.push(res);
+	    			  }
+	    			});
+
+
+	    	});
+
+
+	    }
+
+   		$('.pop-cont-viewData .layui-btn').on('click', function(){
+   			var columnUrl, dataUrl, where,name;
+   			$("#refresh-data-params li").each(function(index){
+   				var v = $(this).text().trim().length == 0 ? null : $(this).text().trim();
+   				if(index == 0){columnUrl = v;}
+   				if(index == 1){dataUrl = v;}
+   				if(index == 2){where = (v == null ? null :JSON.parse(v));}
+   				if(index == 3){name = v;}
+
+            })
+	        if(columnUrl != null && dataUrl != null){
+		        	$.ajax({
+		                url : columnUrl,
+		                data : where,
+		                type : 'POST',
+		                success : function(data){
+		                	for(var i in data){
+		                		if (data[i].dataType == 'Double' || data[i].dataType == 'Long'){
+		                			data[i].title = '<i class="icon icon-sjy-123"></i>' + data[i].title;
+		                		}else if(data[i].dataType == 'Date' || data[i].dataType == 'TimeStamp'){
+		                			data[i].title = '<i class="icon icon-sjy-rili"></i>' + data[i].title;
+		                		}else if(data[i].dataType == "Boolean"){
+		                			data[i].title = '<i class="icon icon-sjy-buer"></i>' + data[i].title;
+		                		}else{
+		                			data[i].title = '<i class="icon icon-sjy-abc"></i>' + data[i].title;
+		                		}
+		                	}
+
+		                	var cols = new Array();
+		                	cols.push(data);
+
+		                	table.render({
+		                        elem: '#table_demo7',
+		                        height: '500',
+		                        url: dataUrl,
+		                        where : where,
+		                        text: {
+		                            none: '暂无数据'
+		                        },
+		                        cols: cols,
+		                        id: 'dataviewtable',
+		                        page: {
+		 		      		          curr: $(".layui-laypage-curr em:eq(1)").text()
+		 		      		        },
+		                        limit : 50,
+		                        limits:[50,100,500]
+		                    });
+
+		                }
+		        	});
+  		    }
+   		});
+   		var finish = function(obj){
+	    	if(DataLinkMain_Ins.msgLoadIndex != null){
+	    		 layer.close(DataLinkMain_Ins.msgLoadIndex);
+	    	}
+   		}
+	    function htmlEscape(str) {
+            console.log('运行到此');
+	        return String(str)
+	                .replace(/&/g, '&amp;')
+	                .replace(/"/g, '&quot;')
+	                .replace(/'/g, '&#39;')
+	                .replace(/</g, '&lt;')
+	                .replace(/>/g, '&gt;');
+	    }
+
+	    /**
+	     * columnUrl 查询字段信息URL， 查询数据url， 查询原始表数据所需参数
+	     */
+	   	DataLinkMain_Ins.viewData = function(columnUrl, dataUrl, where,name){
+	    	var v_arguments = arguments;
+
+	      	//设置动态宽度.(最小1000)
+			var windowWidth = $(window).width();
+			var dialogWidth = windowWidth * 0.9;
+			if(dialogWidth < 1000){
+				dialogWidth = 1000;
+			}
+
+	        $('.pop-cont-viewData').removeClass('hide');
+	        parent.layer.open({
+	            type: 1,
+	            title: name,
+	            area: [dialogWidth+'px', '630px'], //宽高
+	            content: $('.pop-cont-viewData'),
+	            end: function(index1, layero1) {
+	            	$("#refresh-data-params li").text('');
+	                $('.pop-cont-viewData').addClass('hide');
+	            }
+	        });
+
+	        if(columnUrl != null && dataUrl != null){
+
+	        	//console.log('columnUrl:'+columnUrl);
+	        	//console.log('dataUrl:'+dataUrl);
+
+	        	$.ajax({
+	                url : columnUrl,
+	                data : where,
+	                type : 'POST',
+	                success : function(data){
+	                	for(var i in data){
+	                		if (data[i].dataType == 'Double' || data[i].dataType == 'Long'){
+	                			data[i].title = '<i class="icon icon-sjy-123"></i>' + data[i].title;
+	                		}else if(data[i].dataType == 'Date' || data[i].dataType == 'TimeStamp'){
+	                			data[i].title = '<i class="icon icon-sjy-rili"></i>' + data[i].title;
+	                		}else if(data[i].dataType == null || data[i].dataType == 'String'){
+	                			data[i].title = '<i class="icon icon-sjy-abc"></i>' + data[i].title;
+	                		}
+	                		var dataIns = data[i];
+	                	    //删除了一些内容
+
+	                	}
+	                	var cols = new Array();
+	                	cols.push(data);
+	                    table.render({
+	                        elem: '#table_demo7',
+	                        height: '500',
+	                        url: dataUrl,
+	                        where : where,
+	                        text: {
+	                            none: '暂无数据'
+	                        },
+	                        cols: cols,
+	                        id: 'dataviewtable',
+	                        page: true,
+	                        limit : 50,
+	                        limits:[50,100,500]
+	                    });
+	                    $("#refresh-data-params li").each(function(index){
+	                    	if(index == 2){
+	                    		$(this).text(JSON.stringify(v_arguments[index]));
+	                    	}else{
+	                    		$(this).text(v_arguments[index]);
+	                    	}
+	                    })
+	                }
+	        	});
+	        }
+
+	    }
+
+
+	    $(function(){
+	    	//
+	    	DataLinkMain_Ins.initFileLink();
+	    });
+  </script>
+</body>
+
+</html>
